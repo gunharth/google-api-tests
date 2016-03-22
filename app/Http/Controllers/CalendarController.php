@@ -3,79 +3,49 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Services\GoogleCalendar;
-
 use App\Http\Requests;
-use App\Http\Response;
 
 class CalendarController extends Controller
 {
-    public function index(GoogleCalendar $calendar)
+    public function index()
     {
-        $calendarId = "p3ol3iomgjspr2nssld48jm9f8@group.calendar.google.com";
-        $optParams = array(
-  /*'maxResults' => 10,
-  'orderBy' => 'startTime',
-  'singleEvents' => TRUE,
-  'timeMin' => date('c'),
-  'timeMax' => '2016-03-21T10:00:00-07:00'*/
-);
-        $events = $calendar->service->events->listEvents($calendarId, $optParams);
-        //return $events->items;
-        //return compact('events');
-        //print_r($events);
-        //return json_encode($events->items);
-        return view('calendar-google', compact('events'));
-        //return view('calendar-google');
-        //return compact($events);
-
+        return view('calendar-google');
     }
 
-    public function events(GoogleCalendar $calendar)
+    /**
+     * Get all Google events through json
+     */
+    public function events(GoogleCalendar $calendar, Request $request)
     {
-        $calendarId = "p3ol3iomgjspr2nssld48jm9f8@group.calendar.google.com";
-        $optParams = array(
-  /*'maxResults' => 10,
-  'orderBy' => 'startTime',
-  
-  'timeMin' => date('c'),
-  'timeMax' => '2016-03-21T10:00:00-07:00'*/
-  //'singleEvents' => TRUE
-);
-        $events = $calendar->service->events->listEvents($calendarId, $optParams);
-        /*foreach ($events->getItems() as $event) {
-    			echo $event->getSummary();
-  			}*/
-        return $events->items;
-        //return compact('events');
-        //print_r($events);
-        //$e = compact('events');
-        //dd($e->items);
-        //return json_encode($events->items);
-        //return view('calendar-google', compact('events'));
-        //return compact('events');
-
+        $timeMin = $request->input('start');
+        $timeMax = $request->input('end');
+        $items = $calendar->listEvents($timeMin, $timeMax);
+        return json_encode($items);
     }
 
     public function store(GoogleCalendar $calendar)
     {
         $calendarId = "p3ol3iomgjspr2nssld48jm9f8@group.calendar.google.com";
         $event = new \Google_Service_Calendar_Event(array(
-				  'summary' => 'Google I/O 2015',
-				  'location' => '800 Howard St., San Francisco, CA 94103',
-				  'description' => 'A chance to hear more about Google\'s developer products.',
-				  'start' => array(
-				    'dateTime' => '2016-03-21T09:00:00-07:00',
-				    'timeZone' => 'America/Los_Angeles',
-				  ),
-				  'end' => array(
-				    'dateTime' => '2016-03-21T17:00:00-09:00',
-				    'timeZone' => 'America/Los_Angeles',
-				  )
-				));
+                  'summary' => 'Guni Mitternacht bis mitternacht',
+                  'location' => '800 Howard St., San Francisco, CA 94103',
+                  'description' => 'A chance to hear more about Google\'s developer products.',
+                  'start' => array(
+                    'dateTime' => '2016-03-28T00:00:00',
+                    'timeZone' => 'Europe/Vienna',
+                  ),
+                  'end' => array(
+                    'dateTime' => '2016-04-04T00:00:00',
+                    'timeZone' => 'Europe/Vienna',
+                  )
+          /*,
+          'recurrence' => array(
+    'RRULE:FREQ=DAILY;COUNT=2'
+  )*/
+                ));
 
-			$calendar->insertEvent($calendarId, $event);
+        $calendar->insertEvent($calendarId, $event);
 //return 'Event created: %s\n' . $event->htmlLink;
     }
 }

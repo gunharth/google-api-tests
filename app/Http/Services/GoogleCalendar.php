@@ -1,19 +1,27 @@
-<?php namespace App\Services;
+<?php 
+
+namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
 
-class GoogleCalendar {
+class GoogleCalendar
+{
 
     protected $client;
 
-    public $service;
+    protected $service;
 
-    function __construct() {
+    protected $calendarId;
+
+    public function __construct()
+    {
         /* Get config variables */
         $client_id = Config::get('google.client_id');
         $service_account_name = Config::get('google.service_account_name');
         $key_file_location = base_path() . Config::get('google.key_file_location');
+        $this->calendarId = env('GOOGLE_CALENDAR_ID', '');
 
         $this->client = new \Google_Client();
         $this->client->setApplicationName("Your Application Name");
@@ -21,7 +29,7 @@ class GoogleCalendar {
 
         /* If we have an access token */
         if (Cache::has('service_token')) {
-          $this->client->setAccessToken(Cache::get('service_token'));
+            $this->client->setAccessToken(Cache::get('service_token'));
         }
 
         $key = file_get_contents($key_file_location);
@@ -35,7 +43,7 @@ class GoogleCalendar {
 
         $this->client->setAssertionCredentials($cred);
         if ($this->client->getAuth()->isAccessTokenExpired()) {
-          $this->client->getAuth()->refreshTokenWithAssertion($cred);
+            $this->client->getAuth()->refreshTokenWithAssertion($cred);
         }
         Cache::forever('service_token', $this->client->getAccessToken());
     }
@@ -48,16 +56,53 @@ class GoogleCalendar {
         //dd($results);
         return view('events', compact('calendar'));
     }
-
-    public function listEvents($calendarId)
+*/
+    
+    /**
+     * Carbon helper function 
+     * convert fullcalendar date into iso string for Google calendar
+     * MOVE TO HELPER
+     */
+    public function convertDateToISO($date)
     {
-        $events = $this->service->events->listEvents($calendarId);
-        return $events;
+        $carbon = new Carbon($date, 'Europe/Vienna');
+        $date = $carbon->toIso8601String();
+        return $date;
     }
 
-    public function insertEvent($calendarId,$event)
+    /**
+     * Get all events for a certain start & end date
+     * return new array optimised for fullcalendar
+     */
+    public function listEvents($timeMin, $timeMax)
     {
-        $events = $this->service->events->insert($calendarId,$event);
+        
+        $timeMin = $this->convertDateToISO($timeMin);
+        $timeMax = $this->convertDateToISO($timeMax);
+        $optParams = array(
+          'maxResults' => 999,
+          'orderBy' => 'startTime',
+          'timeMin' => $timeMin,
+          'timeMax' => $timeMax,
+          'singleEvents' => true
+        );
+        $allevents = $this->service->events->listEvents($this->calendarId, $optParams);
+        $events = $allevents->items;
+        foreach ($events as $event) {
+            $items[] = array(
+                'id' => $event->id,
+                'title' => $event->summary,
+                'start' => $event->start->dateTime,
+                'end' => $event->end->dateTime,
+                'description' => $event->description
+            );
+        }
+        return $items;
+    }
+
+    public function insertEvent($calendarId, $event)
+    {
+        $events = $this->service->events->insert($calendarId, $event);
         return $events;
-    }*/
+    }
 }

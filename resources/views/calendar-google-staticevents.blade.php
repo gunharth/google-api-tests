@@ -15,7 +15,7 @@
 
 @section('content')
 <div class="row animated fadeInDown">
-        <!--<div class="col-lg-3">
+        <div class="col-lg-3">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Draggable Events</h5>
@@ -60,10 +60,10 @@
                     </p>
                 </div>
             </div>
-        </div>-->
-        <div class="col-lg-12">
+        </div>
+        <div class="col-lg-9">
             <div class="ibox float-e-margins">
-                <!-- <div class="ibox-title">
+                <div class="ibox-title">
                     <h5>Striped Table </h5>
                     <div class="ibox-tools">
                         <a class="collapse-link">
@@ -82,7 +82,7 @@
                             <i class="fa fa-times"></i>
                         </a>
                     </div>
-                </div> -->
+                </div>
                 <div class="ibox-content">
                     <div id="calendar"></div>
                 </div>
@@ -146,28 +146,20 @@
 
         /* initialize the calendar
          -----------------------------------------------------------------*/
-        // var date = new Date();
-        // var d = date.getDate();
-        // var m = date.getMonth();
-        // var y = date.getFullYear();
+        var date = new Date();
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
 
         $('#calendar').fullCalendar({
             defaultView: 'agendaWeek',
-            timeFormat: 'HH:mm',
-            axisFormat: 'HH:mm',
             firstDay: 1,
             header: {
                 left: 'prev,next today',
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay'
             },
-            columnFormat: {
-                week: 'ddd D MMM',
-            },
             editable: true,
-            selectable: true,
-            selectHelper: true,
-            select: function( start, end, jsEvent, view ) { alert(start); },
             droppable: true, // this allows things to be dropped onto the calendar
             drop: function() {
                 // is the "remove after drop" checkbox checked?
@@ -176,7 +168,15 @@
                     $(this).remove();
                 }
             },
-            events: '/calendar-google-events'
+            events: [
+                @foreach($events->items as $item)
+                    {
+                        title: '{{ $item->summary }}',
+                        start: '{{ $item->start->dateTime }}',
+                        end: '{{ $item->end->dateTime }}'
+                    },
+                @endforeach
+            ]
         });
 
 

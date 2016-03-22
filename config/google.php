@@ -32,4 +32,5 @@ return [
     |
     */
     'key_file_location' => '/resources/assets/google.p12',
+    
 ];
