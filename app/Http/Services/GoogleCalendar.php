@@ -76,7 +76,6 @@ class GoogleCalendar
      */
     public function listEvents($timeMin, $timeMax)
     {
-        
         $timeMin = $this->convertDateToISO($timeMin);
         $timeMax = $this->convertDateToISO($timeMax);
         $optParams = array(
@@ -100,9 +99,10 @@ class GoogleCalendar
         return $items;
     }
 
-    public function insertEvent($calendarId, $event)
+
+    public function insertEvent($event)
     {
-        $events = $this->service->events->insert($calendarId, $event);
+        $events = $this->service->events->insert($this->calendarId, $event);
         return $events;
     }
 }

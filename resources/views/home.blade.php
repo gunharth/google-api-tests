@@ -35,38 +35,30 @@
                                         </div>
                                         <div class="modal-body">
                                             
+                                    {!! Form::open(['data-remote', 'method' => 'POST', 'url' => 'events', 'class' => 'form-inline']) !!}
+                
+                                      <div class="form-group">
+                                        <label for="start-date">from </label>
+                                        <input type="text" class="form-control" name="start-date" value="{{ date('d.m.Y') }}">
+                                        <input type="text" class="form-control" name="start-time" value="{{ date('H') }}:00">
 
-  <form id="event_form">
-  <div class="form-group">
-    <input id="event-title" type="text" class="form-control" placeholder="Title of the Event" value="" maxlength="100" name="title" autofocus="autofocus"/>
-  </div>
-  
-  <div id="event-time">
-    <div id="event-time-from">
-      from      <input type="text" value="23-03-2016" name="from" id="from">
-      <input type="time" value="03:00" name="fromtime" id="fromtime">
-    </div>
-    <div id="event-time-to">
-      to      <input type="text" value="23-03-2016" name="to" id="to">
-      <input type="time" value="05:00" name="totime" id="totime">
-    </div>
-  </div>
+                                      </div>
+                                      <div class="form-group">
+                                        <label>to </label>
+                                        <input type="text" class="form-control" name="end-date" value="{{ date('d.m.Y') }}">
+                                        <input type="text" class="form-control" name="end-time" value="{{ date('H') }}:00">
 
-  
-  <div style="width: 100%;text-align: center;color: #FF1D1D;" id="errorbox"></div>
-  <div id="actions">
-    <input type="button" id="submitNewEvent" class="submit actionsfloatright primary"
-      data-link="/index.php/apps/calendar/ajax/event/new.php"
-      value="Create event">
-  </div>
-  </form>
+                                      </div>
 
-                                        </div>
-                                        <div class="modal-footer">
+                                      <div class="modal-footer">
                                             <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary">Create event</button>
+                                            {!! Form::submit('Create Event', ['class' => 'btn btn-primary']) !!}
                                         </div>
-                                    </div>
+                                      </form>
+
+                                        </div>
+                                        
+                                    </div>  
                                 </div>
                             </div>
           </div>
@@ -85,5 +77,36 @@
 <!-- Custom and plugin javascript -->
 <script src="js/inspinia.js"></script>
 <script src="js/plugins/pace/pace.min.js"></script>
+
+<script>
+  
+  $(function() {
+
+
+      var submitAjaxRequest = function(e) {
+        e.preventDefault();
+
+        var form = $(this);
+        var method = form.find('input[name="_method"]').val() || 'POST';
+
+        $.ajax({
+            type: method,
+            url: form.prop('action'),
+            data: form.serialize(),
+            success: function() {
+
+            }
+        })
+      }
+
+
+      $('form[data-remote]').on('submit', submitAjaxRequest)
+      /*$('*[data-submit-form]').on('click', function(e) {
+        e.preventDefault();
+
+      })*/
+
+  });
+</script>
 
 @endsection
